@@ -133,7 +133,9 @@ map.on('zoom',render);
 function lineScale(){if(!mobile)return 1;var z=map.getZoom()-Z0;return Math.max(.5,Math.min(1,.5+z*.25))}
 
 /* ---------- ανασήκωμα ---------- */
-var H={k:80,s:160,g:240}, STEP=150;
+var H={k:80,s:160,g:240};
+/* κλιμάκωση κοινότητα → συνοικία → γειτονιά: πιο σύντομη στο 2Δ, όπου δεν υπάρχει ορατό ύψος */
+function step(){return is3d?140:60}
 var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 var anims={}, active={k:null,s:null,g:null}, locked=false, raf=0, last=0, me=null, pinMode=false;
 function anim(id){return anims[id]||(anims[id]={id:id,l:id[0],h:0,target:0,start:0})}
@@ -142,20 +144,23 @@ function setChain(gid){
   var now=performance.now(), delay=0;
   ['k','s','g'].forEach(function(l){
     if(next[l]===active[l])return;
-    if(active[l]){var o=anim(active[l]);o.target=0;o.start=now;}
+    if(active[l]){var o=anim(active[l]);o.target=0;o.start=now;
+      if(!is3d||reduce)delete anims[active[l]];}            // η προηγούμενη επιλογή σβήνει αμέσως
     if(next[l]){var a=anim(next[l]);a.target=H[l];a.start=now+delay;}
-    delay+=STEP;
+    delay+=step();
   });
-  active=next;panel();kick();
+  active=next;panel();kick();render();
 }
 function kick(){if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}}
 function tick(t){
-  /* και σε αργές συσκευές η κίνηση τελειώνει σε ~0,5 s */ var dt=Math.min(.2,Math.max(0,(t-last)/1000));last=t;var busy=false;
+  // και σε αργές συσκευές η κίνηση τελειώνει γρήγορα
+  var dt=Math.min(.2,Math.max(0,(t-last)/1000));last=t;var busy=false;
   Object.keys(anims).forEach(function(id){
     var a=anims[id];
     if(t<a.start){busy=true;return;}
-    if(reduce)a.h=a.target;else a.h+=(a.target-a.h)*(1-Math.exp(-dt*9));
-    if(Math.abs(a.target-a.h)<.4)a.h=a.target;else busy=true;
+    var k=a.target===0?18:10;                                  // το κατέβασμα είναι διπλάσια γρήγορο από το ανέβασμα
+    if(reduce)a.h=a.target;else a.h+=(a.target-a.h)*(1-Math.exp(-dt*k));
+    if(Math.abs(a.target-a.h)<1)a.h=a.target;else busy=true;
     if(a.h===0&&a.target===0)delete anims[id];
   });
   render();raf=busy?requestAnimationFrame(tick):0;
