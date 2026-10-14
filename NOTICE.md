@@ -22,6 +22,16 @@
 | [Planetiler](https://github.com/onthegomap/planetiler) v0.9.3 | Apache-2.0 |
 | pyosmium, Shapely, pyproj, NumPy, SciPy, freetype-py, fontTools | BSD / MIT / PSF |
 
+## Σήματα (εκτός άδειας EUPL)
+
+| Αρχείο | Κάτοχος |
+|---|---|
+| `public/img/dimos-athinaion-emblem-*.png` | Έμβλημα του Δήμου Αθηναίων |
+| `public/img/thomas-*.png` | Λογότυπο Thomas (σχεδιασμός & ανάπτυξη) |
+
+Τα σήματα **δεν** καλύπτονται από την άδεια EUPL-1.2 του κώδικα ούτε από άλλη ανοιχτή άδεια.
+Όποιος επαναχρησιμοποιεί το έργο για άλλον φορέα πρέπει να τα αφαιρέσει ή να τα αντικαταστήσει.
+
 ## Δεδομένα
 
 | Δεδομένα | Πηγή | Άδεια |
