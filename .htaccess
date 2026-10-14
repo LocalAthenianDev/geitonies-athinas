@@ -9,7 +9,7 @@ Options -Indexes
   RewriteEngine On
 
   # Ό,τι δεν είναι μέρος της εφαρμογής δεν είναι προσβάσιμο από έξω
-  RewriteRule ^(data-source|basemap|scripts|docs|vendor|\.git)(/|$) - [F,L]
+  RewriteRule ^(data-source|basemap|scripts|docs|\.git)(/|$) - [F,L]
   RewriteRule ^(README\.md|NOTICE\.md|LICENSE|\.gitignore|composer\.(json|lock))$ - [F,L]
 
   # Όλα τα υπόλοιπα σερβίρονται από το public/
