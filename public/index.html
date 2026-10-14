@@ -30,9 +30,11 @@
     <p class="fine">Η αναζήτηση γίνεται μέσα στη συσκευή σας. Η διεύθυνση δεν στέλνεται πουθενά.</p>
   </form>
   <label class="find find-g" for="find">Ή διαλέξτε γειτονιά
-    <input id="find" list="places" placeholder="π.χ. Κουκάκι, Κυψέλη, Γκάζι" autocomplete="off">
+    <div class="combo">
+      <input id="find" role="combobox" aria-expanded="false" aria-controls="glist" aria-autocomplete="list" placeholder="π.χ. Κουκάκι, Κυψέλη, Γκάζι" autocomplete="off">
+      <ul id="glist" role="listbox" aria-label="Γειτονιές" hidden></ul>
+    </div>
   </label>
-  <datalist id="places"></datalist>
   <p class="note"><span class="sw dash"></span>Διακεκομμένη γραμμή: χώρος ή μη θεσμική περιοχή, όπως ο Λυκαβηττός.</p>
 </section>
 

@@ -246,19 +246,64 @@ function panel(){
   row('k',active.k&&K[active.k]);row('s',active.s&&S[active.s]);row('g',active.g&&G[active.g]);
   $('hint').innerHTML=locked?'<b>Η επιλογή κλειδώθηκε.</b> Πατήστε ξανά στον χάρτη ή Esc για να συνεχίσετε την εξερεύνηση.'
     :'Περάστε τον δείκτη πάνω από τον χάρτη. Σε κινητό, πατήστε ένα σημείο.';
+  if(typeof fSync==='function')fSync();
 }
 
-/* ---------- επιλογή γειτονιάς ---------- */
-var opts={},dl=$('places');
-D.g.slice().sort(function(a,b){return a.n.localeCompare(b.n,'el')}).forEach(function(g){
-  var label=g.n+' · '+S[g.s].n;opts[label]=g.id;var o=document.createElement('option');o.value=label;dl.appendChild(o);
+/* ---------- επιλογή γειτονιάς (λίστα με αναζήτηση) ----------
+   Η επιλεγμένη γειτονιά μένει γραμμένη στο πεδίο. Με κλικ στο πεδίο εμφανίζονται ξανά ΟΛΕΣ οι γειτονιές·
+   μόλις ο χρήστης γράψει, η λίστα φιλτράρεται. */
+var gItems=D.g.slice().sort(function(a,b){return a.n.localeCompare(b.n,'el')}).map(function(g){
+  return {id:g.id,n:g.n,s:S[g.s].n,nk:AthensGeocoder.norm(g.n),key:AthensGeocoder.norm(g.n+' '+S[g.s].n)};
 });
+var fInput=$('find'),fList=$('glist'),fActive=-1,fShown=[],fChosen=null;
 function centerOf(g){var r=g.f[0],x=0,y=0;r.forEach(function(p){x+=p[0];y+=p[1]});return [x/r.length,y/r.length]}
-// Μετά την επιλογή το πεδίο αδειάζει (η γειτονιά φαίνεται ήδη στην κάρτα), ώστε η λίστα να δείχνει ξανά όλες τις γειτονιές.
-$('find').addEventListener('focus',function(){this.value=''});
-$('find').addEventListener('input',function(e){var id=opts[e.target.value];if(id){locked=true;setChain(id);e.target.value='';e.target.blur();
-  var c=centerOf(G[id]);go({center:c,zoom:Math.max(map.getZoom(),Z0+1.2)});}});
-addEventListener('keydown',function(e){if(e.key==='Escape'){if(pinMode){setPinMode(false);return;}clearPin();locked=false;$('find').value='';setChain(null);}});
+function fRender(q){
+  var t=AthensGeocoder.norm(q).split(' ').filter(Boolean);
+  fShown=gItems.filter(function(it){return t.every(function(w){return it.key.indexOf(w)>=0})});
+  if(t.length){ // πρώτα όσες ταιριάζουν στο όνομα της γειτονιάς, μετά όσες ταιριάζουν μόνο στη συνοικία
+    var rank=function(it){var q=t.join(' ');return it.nk.indexOf(q)===0?0:it.nk.indexOf(q)>=0?1:t.every(function(w){return it.nk.indexOf(w)>=0})?2:3};
+    fShown=fShown.map(function(it,i){return {it:it,r:rank(it),i:i}}).sort(function(a,b){return a.r-b.r||a.i-b.i}).map(function(x){return x.it});
+  }
+  fList.innerHTML='';
+  if(!fShown.length){var e=document.createElement('li');e.className='empty';e.textContent='Δεν βρέθηκε γειτονιά με αυτό το όνομα';fList.appendChild(e);}
+  fShown.forEach(function(it,i){
+    var li=document.createElement('li');li.id='gopt-'+it.id;li.setAttribute('role','option');
+    li.setAttribute('aria-selected',String(it.id===fChosen));
+    var a=document.createElement('span');a.textContent=it.n;var b=document.createElement('small');b.textContent=it.s;
+    li.appendChild(a);li.appendChild(b);
+    li.addEventListener('mousedown',function(ev){ev.preventDefault();fChoose(it.id)});
+    fList.appendChild(li);
+  });
+  fActive=-1;fOpen(true);
+  var cur=fList.querySelector('[aria-selected="true"]');if(cur)cur.scrollIntoView({block:'nearest'});
+}
+function fOpen(on){fList.hidden=!on;fInput.setAttribute('aria-expanded',String(on));if(!on)fInput.removeAttribute('aria-activedescendant')}
+function fMove(d){
+  if(!fShown.length)return;
+  fActive=(fActive+d+fShown.length)%fShown.length;
+  [].forEach.call(fList.children,function(li,i){li.classList.toggle('active',i===fActive)});
+  var li=fList.children[fActive];fInput.setAttribute('aria-activedescendant',li.id);li.scrollIntoView({block:'nearest'});
+}
+function fChoose(id){
+  fChosen=id;fInput.value=G[id].n;fOpen(false);fInput.blur();
+  locked=true;setChain(id);
+  var c=centerOf(G[id]);go({center:c,zoom:Math.max(map.getZoom(),Z0+1.2)});
+}
+function fSync(){ // το πεδίο δείχνει πάντα την κλειδωμένη γειτονιά (από λίστα, διεύθυνση ή κλικ στον χάρτη)
+  if(document.activeElement===fInput)return;
+  fChosen=locked&&active.g?active.g:null;fInput.value=fChosen?G[fChosen].n:'';
+}
+fInput.addEventListener('focus',function(){fInput.select();fRender('')});
+fInput.addEventListener('click',function(){if(fList.hidden)fRender('')});
+fInput.addEventListener('input',function(){fRender(fInput.value)});
+fInput.addEventListener('blur',function(){fOpen(false);fSync()});
+fInput.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'){e.preventDefault();if(fList.hidden)fRender('');else fMove(1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();fMove(-1);}
+  else if(e.key==='Enter'){e.preventDefault();var it=fShown[fActive<0?0:fActive];if(it)fChoose(it.id);}
+  else if(e.key==='Escape'&&!fList.hidden){e.stopPropagation();fOpen(false);fInput.blur();}
+});
+addEventListener('keydown',function(e){if(e.key==='Escape'){if(pinMode){setPinMode(false);return;}clearPin();locked=false;setChain(null);}});
 
 /* ---------- διεύθυνση / τοποθεσία ---------- */
 var geocoder=null,geoLoading=null,searching=false;
