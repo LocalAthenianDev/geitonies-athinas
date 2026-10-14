@@ -116,14 +116,14 @@ function focusPad(){return mobile?{top:70,bottom:sheetH()+20,left:20,right:20}:{
 var PITCH=42,BEARING=-12;
 var map=new maplibregl.Map({
   container:'map',style:{version:8,sources:{},layers:[{id:'bg',type:'background',paint:{'background-color':T['m-bg']}}]},
-  bounds:[[b[0],b[1]],[b[2],b[3]]],fitBoundsOptions:{padding:PAD},pitch:PITCH,bearing:BEARING,
+  bounds:[[b[0],b[1]],[b[2],b[3]]],fitBoundsOptions:{padding:PAD},pitch:0,bearing:0,
   maxPitch:65,minZoom:11,maxZoom:18.5,maxBounds:[[23.5,37.85],[23.97,38.13]],attributionControl:false,
   dragRotate:true,pitchWithRotate:true,touchPitch:true,cooperativeGestures:false
 });
-var HOME=null,Z0=13,is3d=true;
+var HOME=null,Z0=13,is3d=false; // προεπιλογή: επίπεδος (2Δ) χάρτης· το κουμπί «3Δ» τον γέρνει
 map.once('load',function(){
-  var cam=map.cameraForBounds([[b[0],b[1]],[b[2],b[3]]],{padding:PAD,pitch:PITCH,bearing:BEARING});
-  HOME={center:cam.center,zoom:cam.zoom,pitch:PITCH,bearing:BEARING};Z0=cam.zoom;
+  var cam=map.cameraForBounds([[b[0],b[1]],[b[2],b[3]]],{padding:PAD,pitch:0,bearing:0});
+  HOME={center:cam.center,zoom:cam.zoom,pitch:0,bearing:0};Z0=cam.zoom;
   map.jumpTo(Object.assign({padding:{top:0,bottom:0,left:0,right:0}},HOME));
   tilesReady.then(function(){map.setStyle(mapStyle())});
 });
@@ -410,7 +410,7 @@ $('b3d').addEventListener('click',function(){
   is3d=!is3d;this.setAttribute('aria-pressed',String(is3d));
   var o={pitch:is3d?PITCH:0,bearing:is3d?BEARING:0};if(reduce)map.jumpTo(o);else map.easeTo(Object.assign(o,{duration:700}));render();
 });
-$('bhome').addEventListener('click',function(){is3d=true;$('b3d').setAttribute('aria-pressed','true');if(HOME)go(Object.assign({padding:{top:0,bottom:0,left:0,right:0}},HOME))});
+$('bhome').addEventListener('click',function(){is3d=false;$('b3d').setAttribute('aria-pressed','false');if(HOME)go(Object.assign({padding:{top:0,bottom:0,left:0,right:0}},HOME))});
 
 /* ---------- αλλαγή θέματος ---------- */
 function retheme(){readColors();if(map.getSource('osm'))map.setStyle(mapStyle());render()}
