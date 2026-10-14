@@ -1,0 +1,84 @@
+/* Γειτονιές της Αθήνας · SPDX-License-Identifier: EUPL-1.2 */
+/* Layout: full-bleed 3D map; a floating "address card" reads the chain Κοινότητα → Συνοικία → Γειτονιά under the pointer. */
+:root{
+  --bg:#ECEAE3;        /* paper around the municipality */
+  --land:#F7F6F2;      /* municipality ground */
+  --ink:#1B2033;
+  --muted:#5D6275;
+  --card:#FFFFFFF0;
+  --rule:#D9D6CC;
+  --c-k:#1E2A5A;       /* Κοινότητα — βαθύ μπλε  (παλέτα Γ) */
+  --c-s:#0E9A8A;       /* Συνοικία  — τιρκουάζ */
+  --c-g:#E3A21A;       /* Γειτονιά  — κεχριμπάρι */
+  --halo:#7A5200;      /* σκούρο halo κάτω από το κεχριμπάρι για αντίθεση */
+  --focus:#0E9A8A;
+  --f-display:"GFS Didot","Didot","Bodoni 72",Georgia,serif;
+  --f-body:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F131B;--land:#181D28;--ink:#E9E7E0;--muted:#A3A7B5;--card:#1B2130F2;--rule:#2C3343;
+  --c-k:#8FA2E6;--c-s:#2CC2AF;--c-g:#E3A21A;--halo:#0F131B;--focus:#2CC2AF;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F131B;--land:#181D28;--ink:#E9E7E0;--muted:#A3A7B5;--card:#1B2130F2;--rule:#2C3343;
+  --c-k:#8FA2E6;--c-s:#2CC2AF;--c-g:#E3A21A;--halo:#0F131B;--focus:#2CC2AF;color-scheme:dark}
+
+html,body{height:100%;margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;overflow:hidden}
+#map{position:absolute;inset:0;background:var(--bg)}
+#map canvas{outline:none}
+
+.card{position:absolute;z-index:2;top:calc(16px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px));
+  width:min(360px,calc(100% - 32px));background:var(--card);border:1px solid var(--rule);border-radius:14px;
+  box-shadow:0 10px 30px -14px #0004;padding:18px 18px 16px;display:grid;gap:14px;backdrop-filter:blur(6px)}
+.eyebrow{margin:0;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1.05;text-wrap:balance}
+.chain{list-style:none;margin:0;padding:0;display:grid;gap:2px;border-top:1px solid var(--rule)}
+.chain li{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule)}
+.sw{height:0;border-top:3px solid var(--c);width:26px}
+.sw.dash{border-top-style:dashed}
+.lvl{display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.nm{display:block;font-family:var(--f-display);font-size:19px;line-height:1.2;min-height:1.2em;overflow-wrap:anywhere;transition:color .2s}
+.nm.empty{color:var(--muted);opacity:.55}
+.meta{display:grid;justify-items:end;gap:4px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.chip{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;border:1px dashed currentColor;border-radius:99px;padding:1px 7px}
+.hint{margin:0;font-size:13px;line-height:1.45;color:var(--muted)}
+.hint b{color:var(--ink);font-weight:600}
+label.find{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+#find{font:inherit;font-size:14px;color:var(--ink);background:var(--land);border:1px solid var(--rule);border-radius:9px;padding:9px 11px;width:100%;box-sizing:border-box}
+#find:focus-visible,.tools button:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.addr{display:grid;gap:8px;margin:0}
+.row{display:flex;gap:8px;align-items:center}.row.wrap{flex-wrap:wrap}
+.row #addr{flex:1;min-width:0;font:inherit;font-size:14px;color:var(--ink);background:var(--land);border:1px solid var(--rule);border-radius:9px;padding:9px 11px}
+.addr button{font:inherit;font-size:13px;font-weight:500;border-radius:9px;padding:8px 12px;cursor:pointer;border:1px solid var(--rule);background:transparent;color:var(--ink)}
+.addr button.primary{background:var(--ink);color:var(--land);border-color:var(--ink)}
+.addr button.ghost[aria-pressed="true"]{border-color:var(--c-s);color:var(--c-s);box-shadow:inset 0 0 0 1px var(--c-s)}
+.addr button.link{border:0;padding:8px 4px;color:var(--muted);text-decoration:underline}
+.addr button:focus-visible,#addr:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.results{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.results button{width:100%;text-align:left;font-size:13px!important;padding:8px 10px!important}
+.msg{margin:0;font-size:13px;line-height:1.45;padding:9px 11px;border-radius:9px;background:var(--land);border-left:3px solid var(--muted)}
+.msg[data-kind="ok"]{border-left-color:var(--c-s)}.msg[data-kind="warn"]{border-left-color:var(--c-g)}
+.fine{margin:0;font-size:11.5px;color:var(--muted)}
+.note{margin:0;font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.note .sw{--c:var(--muted);border-top-width:2px;width:22px;flex:none}
+
+.tools{position:absolute;z-index:2;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));display:flex;gap:8px}
+.tools button{font:inherit;font-size:13px;font-weight:500;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:8px 12px;cursor:pointer}
+.tools button:hover{border-color:var(--muted)}
+.tools button[aria-pressed="true"]{background:var(--ink);color:var(--land);border-color:var(--ink)}
+
+@media (max-width:640px){
+  .card{top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px));left:max(12px,env(safe-area-inset-left,0px));width:calc(100% - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));padding:14px;gap:10px}
+  h1,.eyebrow,.note,.find-g,.fine,.hint{display:none}
+  .card{max-height:58vh;overflow:auto}
+  .nm{font-size:17px}
+  .chain li{padding:6px 0}
+  .tools{right:max(12px,env(safe-area-inset-right,0px));top:calc(12px + env(safe-area-inset-top,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.credits{position:absolute;z-index:2;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:4px 9px;max-width:calc(100% - 24px)}
+.credits a{color:inherit}
+@media (max-width:640px){.credits{top:calc(56px + env(safe-area-inset-top,0px));bottom:auto}}

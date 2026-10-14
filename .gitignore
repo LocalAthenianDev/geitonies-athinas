@@ -1,0 +1,6 @@
+public/api/config.php
+public/api/cache/*
+!public/api/cache/.htaccess
+__pycache__/
+.venv/
+.DS_Store

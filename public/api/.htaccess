@@ -1,0 +1,5 @@
+# Μόνο το geocode.php είναι προσβάσιμο από έξω.
+Options -Indexes
+<FilesMatch "^(config|config\.example)\.php$">
+  Require all denied
+</FilesMatch>
