@@ -122,20 +122,22 @@ label.find{display:grid;gap:6px;font-size:12px;color:var(--muted)}
 #glist li[aria-selected="true"]{box-shadow:inset 3px 0 0 var(--c-g)}
 #glist li.empty{cursor:default;color:var(--muted);font-size:13px}
 
-/* σήματα */
-.brand{display:flex;gap:14px;align-items:center}
+/* σήματα: έμβλημα Δήμου | γραμμή | λογότυπο Thomas */
+.brand{display:grid;gap:14px}
 .brand .eyebrow{margin-bottom:6px}
-.brand h1{font-size:26px}
+.lockup{display:flex;align-items:center;gap:14px}
+.lockup .divider,.emblem-m .divider{align-self:stretch;width:1px;background:var(--rule)}
+.lockup .mark{height:36px;width:auto;border-radius:7px;display:block}
 .emblem{flex:none;display:block;line-height:0;border-radius:50%}
 .emblem img{width:52px;height:52px;display:block}
 .emblem-m{display:none}
-.credits .by{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
-.credits .by img{height:20px;width:auto;border-radius:4px;display:block}
-.emblem:focus-visible,.emblem-m:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.emblem:focus-visible,.emblem-m a:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 @media (max-width:640px){
   .brand{display:none}
-  .emblem-m{display:block;position:absolute;z-index:2;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));
-    padding:4px;border-radius:50%;background:var(--card);border:1px solid var(--rule);line-height:0;box-shadow:0 4px 14px -8px #0006}
-  .emblem-m img{width:40px;height:40px;display:block}
-  .credits .by img{height:18px}
+  .emblem-m{display:flex;align-items:center;gap:10px;position:absolute;z-index:2;top:calc(10px + env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));
+    padding:5px 10px 5px 5px;border-radius:999px;background:var(--card);border:1px solid var(--rule);box-shadow:0 4px 14px -8px #0006}
+  .emblem-m a{display:block;line-height:0;border-radius:50%}
+  .emblem-m img{display:block}
+  .emblem-m a img{width:36px;height:36px}
+  .emblem-m .mark{height:26px;width:auto;border-radius:5px}
 }

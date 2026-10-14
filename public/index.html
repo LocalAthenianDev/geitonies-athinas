@@ -22,7 +22,7 @@
 <link rel="apple-touch-icon" href="img/dimos-athinaion-emblem-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="vendor/maplibre-gl-4.7.1.css">
-<link rel="stylesheet" href="styles.css?v=6f0fa661">
+<link rel="stylesheet" href="styles.css?v=93a79b20">
 </head>
 <body>
 <div id="map" role="application" aria-label="Τρισδιάστατος χάρτης του Δήμου Αθηναίων"></div>
@@ -30,7 +30,11 @@
 <section class="card" id="card">
   <button class="handle" id="bsheet" type="button" aria-expanded="false"><span class="grip" aria-hidden="true"></span><span id="bsheet-t">Περισσότερα</span></button>
   <header class="brand">
-    <a class="emblem" href="https://www.cityofathens.gr/" target="_blank" rel="noopener" title="Δήμος Αθηναίων"><img src="img/dimos-athinaion-emblem-96.png" srcset="img/dimos-athinaion-emblem-96.png 1x, img/dimos-athinaion-emblem-192.png 2x" width="52" height="52" alt="Δήμος Αθηναίων"></a>
+    <div class="lockup">
+      <a class="emblem" href="https://www.cityofathens.gr/" target="_blank" rel="noopener" title="Δήμος Αθηναίων"><img src="img/dimos-athinaion-emblem-96.png" srcset="img/dimos-athinaion-emblem-96.png 1x, img/dimos-athinaion-emblem-192.png 2x" width="52" height="52" alt="Δήμος Αθηναίων"></a>
+      <span class="divider" aria-hidden="true"></span>
+      <img class="mark" src="img/thomas-mark-36.png" srcset="img/thomas-mark-36.png 1x, img/thomas-mark-72.png 2x" height="36" alt="Thomas" title="Σχεδιασμός &amp; ανάπτυξη: Thomas">
+    </div>
     <div>
       <p class="eyebrow">Δήμος Αθηναίων · 7 κοινότητες · 38 συνοικίες · 129 γειτονιές</p>
       <h1>Γειτονιές της Αθήνας</h1>
@@ -60,7 +64,7 @@
   <p class="note more"><span class="sw dash"></span>Διακεκομμένη γραμμή: χώρος ή μη θεσμική περιοχή, όπως ο Λυκαβηττός.</p>
 </section>
 
-<a class="emblem-m" href="https://www.cityofathens.gr/" target="_blank" rel="noopener" title="Δήμος Αθηναίων"><img src="img/dimos-athinaion-emblem-96.png" width="40" height="40" alt="Δήμος Αθηναίων"></a>
+<div class="emblem-m"><a href="https://www.cityofathens.gr/" target="_blank" rel="noopener" title="Δήμος Αθηναίων"><img src="img/dimos-athinaion-emblem-96.png" width="36" height="36" alt="Δήμος Αθηναίων"></a><span class="divider" aria-hidden="true"></span><img class="mark" src="img/thomas-mark-36.png" srcset="img/thomas-mark-36.png 1x, img/thomas-mark-72.png 2x" height="26" alt="Thomas" title="Σχεδιασμός &amp; ανάπτυξη: Thomas"></div>
 
 <div class="tools">
   <button id="b3d" type="button" aria-pressed="false">3Δ</button>
@@ -73,7 +77,6 @@
   Χάρτης &amp; διευθύνσεις: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
   <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre</a> ·
   <a href="LICENSE.txt" target="_blank" rel="noopener">Ανοιχτός κώδικας</a> (EUPL-1.2)</span>
-  <span class="by">· <img src="img/thomas-40.png" srcset="img/thomas-40.png 1x, img/thomas-80.png 2x" height="20" alt="Thomas" title="Σχεδιασμός &amp; ανάπτυξη: Thomas"></span>
 </footer>
 
 <script src="vendor/maplibre-gl-4.7.1.js"></script>
