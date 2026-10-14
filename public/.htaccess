@@ -43,6 +43,10 @@ AddType application/json .json
 # Ανακατεύθυνση σε HTTPS (απαραίτητο για τον εντοπισμό θέσης στα κινητά)
 <IfModule mod_rewrite.c>
   RewriteEngine On
+  # www.athenshoods.gr → athenshoods.gr (μία διεύθυνση για όλους)
+  RewriteCond %{HTTP_HOST} ^www\.athenshoods\.gr$ [NC]
+  RewriteRule ^(.*)$ https://athenshoods.gr/$1 [R=301,L]
+
   RewriteCond %{HTTPS} !=on
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>

@@ -8,6 +8,10 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # www.athenshoods.gr → athenshoods.gr (μία διεύθυνση για όλους)
+  RewriteCond %{HTTP_HOST} ^www\.athenshoods\.gr$ [NC]
+  RewriteRule ^(.*)$ https://athenshoods.gr/$1 [R=301,L]
+
   # Ό,τι δεν είναι μέρος της εφαρμογής δεν είναι προσβάσιμο από έξω
   RewriteRule ^(data-source|basemap|scripts|docs|\.git)(/|$) - [F,L]
   RewriteRule ^(README\.md|NOTICE\.md|LICENSE|\.gitignore|composer\.(json|lock))$ - [F,L]
