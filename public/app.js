@@ -129,8 +129,8 @@ map.once('load',function(){
 });
 map.on('move',function(){if(Object.keys(anims).length||me)render()});
 map.on('zoom',render);
-/* γραμμές πιο λεπτές όταν βλέπουμε όλο τον Δήμο, πλήρες πάχος όταν πλησιάζουμε */
-function lineScale(){var z=map.getZoom()-Z0;return Math.max(mobile?.5:.7,Math.min(1,(mobile?.5:.7)+z*.25))}
+/* στο κινητό: γραμμές πιο λεπτές όταν φαίνεται όλος ο Δήμος, πλήρες πάχος όταν πλησιάζουμε */
+function lineScale(){if(!mobile)return 1;var z=map.getZoom()-Z0;return Math.max(.5,Math.min(1,.5+z*.25))}
 
 /* ---------- ανασήκωμα ---------- */
 var H={k:80,s:160,g:240}, STEP=150;
@@ -150,7 +150,7 @@ function setChain(gid){
 }
 function kick(){if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}}
 function tick(t){
-  var dt=Math.min(.2,Math.max(0,(t-last)/1000)); // και σε αργές συσκευές η κίνηση τελειώνει σε ~0,5 slast=t;var busy=false;
+  /* και σε αργές συσκευές η κίνηση τελειώνει σε ~0,5 s */ var dt=Math.min(.2,Math.max(0,(t-last)/1000));last=t;var busy=false;
   Object.keys(anims).forEach(function(id){
     var a=anims[id];
     if(t<a.start){busy=true;return;}

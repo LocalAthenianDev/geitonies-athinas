@@ -103,7 +103,10 @@ label.find{display:grid;gap:6px;font-size:12px;color:var(--muted)}
   font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:4px 9px;max-width:calc(100% - 24px)}
 .credits a{color:inherit}
 @media (max-width:640px){
-  .credits{bottom:calc(var(--sheet-h,160px) + 8px);right:max(10px,env(safe-area-inset-right,0px));font-size:10.5px;padding:2px 7px;white-space:nowrap}
+  /* κάτω δεξιά, όπως στον υπολογιστή: στο κάτω άκρο του συρταριού */
+  .credits{z-index:3;bottom:calc(6px + env(safe-area-inset-bottom,0px));right:max(12px,env(safe-area-inset-right,0px));
+    font-size:10px;padding:0;white-space:nowrap;background:none;border:0}
+  .card{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
   .c-long{display:none}.c-short{display:inline}
 }
 .results button{display:grid!important;gap:1px}
