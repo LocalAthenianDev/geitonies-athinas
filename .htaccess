@@ -1,0 +1,18 @@
+# Γειτονιές της Αθήνας — .htaccess της ρίζας του αποθετηρίου
+# Όταν ο server ανεβάζει όλο το αποθετήριο (π.χ. Hostinger «Deployment from GitHub»),
+# αυτό το αρχείο σερβίρει την εφαρμογή από το public/ και κρύβει όλα τα υπόλοιπα.
+# Αν ανεβάζετε μόνο το περιεχόμενο του public/, αυτό το αρχείο δεν χρειάζεται.
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Ό,τι δεν είναι μέρος της εφαρμογής δεν είναι προσβάσιμο από έξω
+  RewriteRule ^(data-source|basemap|scripts|docs|vendor|\.git)(/|$) - [F,L]
+  RewriteRule ^(README\.md|NOTICE\.md|LICENSE|\.gitignore|composer\.(json|lock))$ - [F,L]
+
+  # Όλα τα υπόλοιπα σερβίρονται από το public/
+  RewriteCond %{REQUEST_URI} !/public/
+  RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
