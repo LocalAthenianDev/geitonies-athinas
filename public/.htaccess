@@ -21,12 +21,17 @@ AddType application/json .json
 
 <IfModule mod_expires.c>
   ExpiresActive On
+  # Γραμματοσειρές και glyphs: δεν αλλάζουν
   ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType application/x-protobuf "access plus 1 year"
-  ExpiresByType application/octet-stream "access plus 30 days"
-  ExpiresByType application/javascript "access plus 7 days"
-  ExpiresByType application/json "access plus 7 days"
-  ExpiresByType text/css "access plus 7 days"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Σελίδα, κώδικας και δεδομένα: ο browser ελέγχει πάντα αν άλλαξαν (γρήγορο 304),
+  # ώστε μετά από κάθε ενημέρωση όλοι οι πολίτες να βλέπουν αμέσως τη νέα έκδοση.
+  <FilesMatch "\.(html|css|js|json|pmtiles)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
 </IfModule>
 
 # Συμπίεση κειμένου. ΟΧΙ στο .pmtiles: τα tiles είναι ήδη συμπιεσμένα και η συμπίεση χαλά τα range requests.

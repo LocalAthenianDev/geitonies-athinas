@@ -61,6 +61,16 @@ python3 -m http.server 8000      # ή: php -S localhost:8000
 
 Ανοίξτε το http://localhost:8000.
 
+## Αλλαγές στον κώδικα
+
+Μετά από κάθε αλλαγή σε `app.js`, `geocoder.js`, `styles.css` ή `data/athens-data.js` τρέξτε:
+
+```bash
+python3 scripts/bump_versions.py
+```
+
+Ενημερώνει τις εκδόσεις (`?v=...`) στο `index.html`, ώστε οι browsers να φορτώνουν αμέσως τη νέα έκδοση και όχι παλιό αντίγραφο από το cache.
+
 ## Ενημέρωση δεδομένων
 
 **Όρια Δήμου:** αντικαταστήστε τα αρχεία στο `data-source/` και τρέξτε `python3 scripts/build_data.py`.
