@@ -1,6 +1,5 @@
-public/api/config.php
-public/api/cache/*
-!public/api/cache/.htaccess
+basemap/build/
+*.osm.pbf
 __pycache__/
 .venv/
 .DS_Store

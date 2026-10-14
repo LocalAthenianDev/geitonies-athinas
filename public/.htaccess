@@ -2,23 +2,37 @@
 Options -Indexes
 DirectoryIndex index.html
 
+# Τύποι αρχείων του χάρτη
+AddType application/octet-stream .pmtiles
+AddType application/x-protobuf .pbf
+AddType application/json .json
+
 <IfModule mod_headers.c>
-  # Όλα φορτώνονται από τον δικό μας server: καμία κλήση σε τρίτους (CDN, Google Fonts).
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
+  # Όλα φορτώνονται από τον δικό μας server: καμία κλήση σε τρίτους.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; child-src blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self'"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Content-Type-Options "nosniff"
   Header always set Permissions-Policy "geolocation=(self), camera=(), microphone=(), payment=()"
+  # Το υπόβαθρο διαβάζεται τμηματικά (HTTP range requests)
+  <FilesMatch "\.pmtiles$">
+    Header set Accept-Ranges "bytes"
+  </FilesMatch>
 </IfModule>
 
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/x-protobuf "access plus 1 year"
+  ExpiresByType application/octet-stream "access plus 30 days"
   ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType application/json "access plus 7 days"
   ExpiresByType text/css "access plus 7 days"
 </IfModule>
 
+# Συμπίεση κειμένου. ΟΧΙ στο .pmtiles: τα tiles είναι ήδη συμπιεσμένα και η συμπίεση χαλά τα range requests.
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json
+  SetEnvIfNoCase Request_URI "\.pmtiles$" no-gzip dont-vary
 </IfModule>
 
 # Ανακατεύθυνση σε HTTPS (απαραίτητο για τον εντοπισμό θέσης στα κινητά)

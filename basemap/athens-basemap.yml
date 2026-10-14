@@ -1,0 +1,193 @@
+# Γειτονιές της Αθήνας — σχήμα υποβάθρου για Planetiler (generate-custom)
+# SPDX-License-Identifier: EUPL-1.2
+# Δεδομένα: © OpenStreetMap contributors (ODbL)
+#
+# Παράγει μόνο ό,τι χρειάζεται ο πολίτης για να προσανατολιστεί:
+# δρόμους με ονόματα, γραμμές μετρό/τραμ, πράσινο, νερό, στάσεις μετρό, πλατείες.
+# Τα κτίρια παραλείπονται: στην πυκνή Αθήνα γεμίζουν τα οικοδομικά τετράγωνα και τριπλασιάζουν το μέγεθος.
+
+schema_name: Athens basemap
+schema_description: Ουδέτερο υπόβαθρο για τον χάρτη «Γειτονιές της Αθήνας»
+attribution: <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>
+
+args:
+  osm_path:
+    description: Αρχείο OSM (.osm.pbf) της Ελλάδας από το Geofabrik
+    default: greece-latest.osm.pbf
+
+sources:
+  osm:
+    type: osm
+    local_path: '${ args.osm_path }'
+
+layers:
+
+- id: water
+  features:
+  - source: osm
+    geometry: polygon
+    min_zoom: 11
+    include_when:
+      natural: water
+      waterway: riverbank
+      leisure: swimming_pool
+    exclude_when:
+      leisure: swimming_pool
+  - source: osm
+    geometry: line
+    min_zoom: 13
+    include_when:
+      waterway: [river, stream, canal]
+    exclude_when:
+      tunnel: [yes, culvert]
+
+- id: green
+  features:
+  - source: osm
+    geometry: polygon
+    min_zoom: 11
+    min_size: 2
+    include_when:
+      leisure: [park, garden, playground, pitch, nature_reserve]
+      landuse: [grass, forest, cemetery, recreation_ground, meadow, village_green]
+      natural: [wood, scrub, heath, grassland]
+    attributes:
+    - key: class
+      coalesce:
+      - '${ feature.tags.leisure }'
+      - '${ feature.tags.landuse }'
+      - '${ feature.tags.natural }'
+
+- id: rail
+  features:
+  - source: osm
+    geometry: line
+    min_zoom: 11
+    include_when:
+      railway: [rail, subway, light_rail, tram, narrow_gauge]
+    attributes:
+    - key: class
+      tag_value: railway
+    - key: tunnel
+      value: true
+      include_when:
+        tunnel: [yes, building_passage]
+
+- id: roads
+  features:
+  - source: osm
+    geometry: line
+    min_zoom:
+      default_value: 15
+      overrides:
+        11:
+          highway: [motorway, motorway_link, trunk, trunk_link, primary, primary_link]
+        12:
+          highway: [secondary, secondary_link]
+        13:
+          highway: [tertiary, tertiary_link]
+        14:
+          highway: [residential, unclassified, living_street, pedestrian]
+    include_when:
+      highway:
+      - motorway
+      - motorway_link
+      - trunk
+      - trunk_link
+      - primary
+      - primary_link
+      - secondary
+      - secondary_link
+      - tertiary
+      - tertiary_link
+      - residential
+      - unclassified
+      - living_street
+      - pedestrian
+    exclude_when:
+      area: yes
+    attributes:
+    - key: class
+      tag_value: highway
+    - key: tunnel
+      value: true
+      include_when:
+        tunnel: [yes, building_passage]
+    - key: name
+      min_zoom: 13
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'
+
+- id: labels
+  features:
+  # στάσεις μετρό, ηλεκτρικού, τραμ
+  - source: osm
+    geometry: point
+    min_zoom: 12
+    include_when:
+      railway: [station, halt, tram_stop]
+    attributes:
+    - key: class
+      value: station
+    - key: kind
+      coalesce:
+      - '${ feature.tags.station }'
+      - '${ feature.tags.railway }'
+    - key: name
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'
+  # πλατείες
+  - source: osm
+    geometry: polygon_point_on_surface
+    min_zoom: 14
+    include_when:
+      place: square
+    attributes:
+    - key: class
+      value: square
+    - key: name
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'
+  - source: osm
+    geometry: point
+    min_zoom: 14
+    include_when:
+      place: square
+    attributes:
+    - key: class
+      value: square
+    - key: name
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'
+  # ονόματα μεγάλων πάρκων και λόφων
+  - source: osm
+    geometry: polygon_point_on_surface
+    min_zoom: 13
+    min_size: 64
+    include_when:
+      leisure: park
+      natural: [wood, peak]
+      landuse: cemetery
+    attributes:
+    - key: class
+      value: park
+    - key: name
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'
+  - source: osm
+    geometry: point
+    min_zoom: 13
+    include_when:
+      natural: peak
+    attributes:
+    - key: class
+      value: peak
+    - key: name
+      coalesce:
+      - '${ feature.tags["name:el"] }'
+      - '${ feature.tags.name }'

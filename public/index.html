@@ -6,6 +6,7 @@
 <title>Γειτονιές της Αθήνας</title>
 <meta name="description" content="Βρείτε σε ποια δημοτική κοινότητα, συνοικία και γειτονιά του Δήμου Αθηναίων ανήκει η διεύθυνσή σας.">
 <link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="vendor/maplibre-gl-4.7.1.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
     <div class="row wrap"><button id="bgeo" type="button" class="ghost">Η τοποθεσία μου</button><button id="bpin" type="button" class="ghost" aria-pressed="false">Σημείωση στον χάρτη</button><button id="bclear" type="button" class="link" hidden>Καθαρισμός</button></div>
     <ul id="results" class="results" hidden></ul>
     <p id="msg" class="msg" role="status" hidden></p>
-    <p class="fine">Η διεύθυνση χρησιμοποιείται μόνο για τον εντοπισμό και δεν αποθηκεύεται.</p>
+    <p class="fine">Η αναζήτηση γίνεται μέσα στη συσκευή σας. Η διεύθυνση δεν στέλνεται πουθενά.</p>
   </form>
   <label class="find find-g" for="find">Ή διαλέξτε γειτονιά
     <input id="find" list="places" placeholder="π.χ. Κουκάκι, Κυψέλη, Γκάζι" autocomplete="off">
@@ -42,12 +43,16 @@
 
 <footer class="credits">
   Όρια: <a href="https://opendata.cityofathens.gr/" target="_blank" rel="noopener">Δήμος Αθηναίων</a> ·
-  Διευθύνσεις: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
+  Χάρτης &amp; διευθύνσεις: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
+  <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre</a> ·
   <a href="LICENSE.txt" target="_blank" rel="noopener">Ανοιχτός κώδικας</a> (EUPL-1.2)
 </footer>
 
+<script src="vendor/maplibre-gl-4.7.1.js"></script>
+<script src="vendor/pmtiles-3.2.1.js"></script>
 <script src="vendor/deck.gl-9.0.41.min.js"></script>
 <script src="data/athens-data.js"></script>
+<script src="geocoder.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
