@@ -254,7 +254,9 @@ D.g.slice().sort(function(a,b){return a.n.localeCompare(b.n,'el')}).forEach(func
   var label=g.n+' · '+S[g.s].n;opts[label]=g.id;var o=document.createElement('option');o.value=label;dl.appendChild(o);
 });
 function centerOf(g){var r=g.f[0],x=0,y=0;r.forEach(function(p){x+=p[0];y+=p[1]});return [x/r.length,y/r.length]}
-$('find').addEventListener('input',function(e){var id=opts[e.target.value];if(id){locked=true;setChain(id);e.target.blur();
+// Μετά την επιλογή το πεδίο αδειάζει (η γειτονιά φαίνεται ήδη στην κάρτα), ώστε η λίστα να δείχνει ξανά όλες τις γειτονιές.
+$('find').addEventListener('focus',function(){this.value=''});
+$('find').addEventListener('input',function(e){var id=opts[e.target.value];if(id){locked=true;setChain(id);e.target.value='';e.target.blur();
   var c=centerOf(G[id]);go({center:c,zoom:Math.max(map.getZoom(),Z0+1.2)});}});
 addEventListener('keydown',function(e){if(e.key==='Escape'){if(pinMode){setPinMode(false);return;}clearPin();locked=false;$('find').value='';setChain(null);}});
 
