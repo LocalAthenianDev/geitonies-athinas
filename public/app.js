@@ -109,7 +109,10 @@ var tilesReady=(function(){
 
 /* ---------- κάμερα ---------- */
 var mobile=matchMedia('(max-width:640px)').matches;
-var PAD=mobile?{top:90,bottom:Math.min(400,innerHeight*0.5),left:16,right:16}:{top:60,bottom:60,left:Math.min(400,innerWidth*0.35),right:60};
+function sheetH(){return mobile?$('card').offsetHeight:0}
+var PAD=mobile?{top:64,bottom:sheetH()+28,left:14,right:14}:{top:60,bottom:60,left:Math.min(400,innerWidth*0.35),right:60};
+/* περιθώρια για «πτήσεις» σε σημείο: στο κινητό το σημείο μένει πάνω από το συρτάρι */
+function focusPad(){return mobile?{top:70,bottom:sheetH()+20,left:20,right:20}:{top:60,bottom:60,left:Math.min(400,innerWidth*0.35),right:40}}
 var PITCH=42,BEARING=-12;
 var map=new maplibregl.Map({
   container:'map',style:{version:8,sources:{},layers:[{id:'bg',type:'background',paint:{'background-color':T['m-bg']}}]},
@@ -121,10 +124,13 @@ var HOME=null,Z0=13,is3d=true;
 map.once('load',function(){
   var cam=map.cameraForBounds([[b[0],b[1]],[b[2],b[3]]],{padding:PAD,pitch:PITCH,bearing:BEARING});
   HOME={center:cam.center,zoom:cam.zoom,pitch:PITCH,bearing:BEARING};Z0=cam.zoom;
-  map.jumpTo(HOME);
+  map.jumpTo(Object.assign({padding:{top:0,bottom:0,left:0,right:0}},HOME));
   tilesReady.then(function(){map.setStyle(mapStyle())});
 });
 map.on('move',function(){if(Object.keys(anims).length||me)render()});
+map.on('zoom',render);
+/* γραμμές πιο λεπτές όταν βλέπουμε όλο τον Δήμο, πλήρες πάχος όταν πλησιάζουμε */
+function lineScale(){var z=map.getZoom()-Z0;return Math.max(mobile?.5:.7,Math.min(1,(mobile?.5:.7)+z*.25))}
 
 /* ---------- ανασήκωμα ---------- */
 var H={k:80,s:160,g:240}, STEP=150;
@@ -144,7 +150,7 @@ function setChain(gid){
 }
 function kick(){if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}}
 function tick(t){
-  var dt=Math.min(.05,(t-last)/1000);last=t;var busy=false;
+  var dt=Math.min(.2,Math.max(0,(t-last)/1000)); // και σε αργές συσκευές η κίνηση τελειώνει σε ~0,5 slast=t;var busy=false;
   Object.keys(anims).forEach(function(id){
     var a=anims[id];
     if(t<a.start){busy=true;return;}
@@ -162,7 +168,7 @@ var DASH=[5,3.5], SOLID=[0,0];
 function onChain(l,x){return !active.g||active[l]===x.id}
 function baseLayer(l,w){
   return new deck.PathLayer({
-    id:'base-'+l,data:base[l],getPath:function(d){return d.r},widthUnits:'pixels',getWidth:w,
+    id:'base-'+l,data:base[l],getPath:function(d){return d.r},widthUnits:'pixels',getWidth:w,widthScale:lineScale(),
     getColor:function(d){var c=C.lvl[l];return c.concat(onChain(l,d.x)?255:active.g?110:225)},
     getDashArray:function(d){return d.x.pl?DASH:SOLID},dashJustified:true,extensions:[dashExt],
     jointRounded:true,capRounded:true,parameters:{depthTest:false},
@@ -199,7 +205,7 @@ function layers(){
     new deck.SolidPolygonLayer({id:'ground',data:pickData,getPolygon:function(d){return d.r},
       getFillColor:function(d){return C['c-g'].concat(d.g.id===active.g?28:1)},pickable:true,
       updateTriggers:{getFillColor:[active.g,C['c-g']]}}),
-    new deck.PathLayer({id:'halo-g',data:base.g,getPath:function(d){return d.r},widthUnits:'pixels',getWidth:3.4,
+    new deck.PathLayer({id:'halo-g',data:base.g,getPath:function(d){return d.r},widthUnits:'pixels',getWidth:3.4,widthScale:lineScale(),
       getColor:C.halo.concat(active.g?50:95),parameters:{depthTest:false},updateTriggers:{getColor:[C.halo,!!active.g]}}),
     baseLayer('g',1.7),baseLayer('s',2.2),baseLayer('k',3),
     new deck.TextLayer({id:'k-labels',data:D.k,getPosition:function(d){return d.c},getText:function(d){return d.n.split(' ')[0]},
@@ -247,7 +253,32 @@ function panel(){
   $('hint').innerHTML=locked?'<b>Η επιλογή κλειδώθηκε.</b> Πατήστε ξανά στον χάρτη ή Esc για να συνεχίσετε την εξερεύνηση.'
     :'Περάστε τον δείκτη πάνω από τον χάρτη. Σε κινητό, πατήστε ένα σημείο.';
   if(typeof fSync==='function')fSync();
+  crumb();
 }
+function crumb(){
+  var el=$('crumb');if(!el)return;
+  if(!active.g){el.innerHTML='<p class="empty">Πατήστε ένα σημείο στον χάρτη ή γράψτε τη διεύθυνσή σας.</p>';return;}
+  var g=G[active.g],s=S[active.s],k=K[active.k];
+  el.innerHTML='';
+  var t=document.createElement('div');t.className='g';t.textContent=g.n;el.appendChild(t);
+  var up=document.createElement('div');up.className='up';
+  [['c-g',g,'Γειτονιά'],['c-s',s,null],['c-k',k,null]].forEach(function(x,i){
+    if(i===0)return;
+    var sp=document.createElement('span'),ic=document.createElement('i');ic.style.setProperty('--c','var(--'+x[0]+')');
+    if(x[1].pl)ic.className='dash';sp.appendChild(ic);sp.appendChild(document.createTextNode(x[1].n));up.appendChild(sp);
+  });
+  var gi=document.createElement('i');gi.style.setProperty('--c','var(--c-g)');if(g.pl)gi.className='dash';
+  t.prepend(gi);gi.style.marginRight='8px';gi.style.verticalAlign='middle';
+  el.appendChild(up);
+}
+/* συρτάρι στο κινητό */
+var card=$('card');
+function setSheet(open){card.classList.toggle('open',open);$('bsheet').setAttribute('aria-expanded',String(open));
+  $('bsheet-t').textContent=open?'Λιγότερα':'Περισσότερα';}
+$('bsheet').addEventListener('click',function(){setSheet(!card.classList.contains('open'))});
+function syncSheet(){document.documentElement.style.setProperty('--sheet-h',sheetH()+'px')}
+if(window.ResizeObserver)new ResizeObserver(syncSheet).observe(card);syncSheet();
+$('bgeo2').addEventListener('click',function(){$('bgeo').click()});
 
 /* ---------- επιλογή γειτονιάς (λίστα με αναζήτηση) ----------
    Η επιλεγμένη γειτονιά μένει γραμμένη στο πεδίο. Με κλικ στο πεδίο εμφανίζονται ξανά ΟΛΕΣ οι γειτονιές·
@@ -285,6 +316,7 @@ function fMove(d){
   var li=fList.children[fActive];fInput.setAttribute('aria-activedescendant',li.id);li.scrollIntoView({block:'nearest'});
 }
 function fChoose(id){
+  if(mobile)setSheet(false);
   fChosen=id;fInput.value=G[id].n;fOpen(false);fInput.blur();
   locked=true;setChain(id);
   var c=centerOf(G[id]);go({center:c,zoom:Math.max(map.getZoom(),Z0+1.2)});
@@ -332,6 +364,7 @@ function place(lon,lat,label,how){
     msg('<b>'+esc(label)+'</b> ανήκει στη γειτονιά <b>'+esc(g.n)+'</b>, στη συνοικία <b>'+esc(S[g.s].n)+'</b> της <b>'+esc(K[g.k].n.replace('η Δημοτική Κοινότητα','ης Δημοτικής Κοινότητας'))+'</b>.'
       +(g.pl?' Το σημείο είναι σε χώρο και όχι σε κατοικημένη γειτονιά.':'')
       +(approx?'<br><b>Προσοχή:</b> '+approx+' Αν δεν είναι σωστή, πατήστε <b>Σημείωση στον χάρτη</b>.':''),approx?'warn':'ok');}
+  if(mobile)setSheet(false);
   go({center:[lon,lat],zoom:Math.max(map.getZoom(),Z0+2.2)});
   render();
 }
@@ -370,14 +403,14 @@ $('bgeo').addEventListener('click',function(){
 
 /* ---------- κουμπιά ---------- */
 function go(v){
-  var o=Object.assign({pitch:is3d?PITCH:0,bearing:is3d?map.getBearing():0},v);
+  var o=Object.assign({pitch:is3d?PITCH:0,bearing:is3d?map.getBearing():0,padding:focusPad()},v);
   if(reduce)map.jumpTo(o);else map.flyTo(Object.assign(o,{duration:900,essential:true}));
 }
 $('b3d').addEventListener('click',function(){
   is3d=!is3d;this.setAttribute('aria-pressed',String(is3d));
-  go({center:map.getCenter(),zoom:map.getZoom(),pitch:is3d?PITCH:0,bearing:is3d?BEARING:0});render();
+  var o={pitch:is3d?PITCH:0,bearing:is3d?BEARING:0};if(reduce)map.jumpTo(o);else map.easeTo(Object.assign(o,{duration:700}));render();
 });
-$('bhome').addEventListener('click',function(){is3d=true;$('b3d').setAttribute('aria-pressed','true');if(HOME)go(HOME)});
+$('bhome').addEventListener('click',function(){is3d=true;$('b3d').setAttribute('aria-pressed','true');if(HOME)go(Object.assign({padding:{top:0,bottom:0,left:0,right:0}},HOME))});
 
 /* ---------- αλλαγή θέματος ---------- */
 function retheme(){readColors();if(map.getSource('osm'))map.setStyle(mapStyle());render()}

@@ -7,15 +7,17 @@
 <meta name="description" content="Βρείτε σε ποια δημοτική κοινότητα, συνοικία και γειτονιά του Δήμου Αθηναίων ανήκει η διεύθυνσή σας.">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="vendor/maplibre-gl-4.7.1.css">
-<link rel="stylesheet" href="styles.css?v=0d56c6b0">
+<link rel="stylesheet" href="styles.css?v=826f51a1">
 </head>
 <body>
 <div id="map" role="application" aria-label="Τρισδιάστατος χάρτης του Δήμου Αθηναίων"></div>
 
-<section class="card" aria-live="polite">
+<section class="card" id="card">
+  <button class="handle" id="bsheet" type="button" aria-expanded="false"><span class="grip" aria-hidden="true"></span><span id="bsheet-t">Περισσότερα</span></button>
   <p class="eyebrow">Δήμος Αθηναίων · 7 κοινότητες · 53 συνοικίες · 144 γειτονιές</p>
   <h1>Γειτονιές της Αθήνας</h1>
-  <ol class="chain">
+  <div class="crumb" id="crumb" aria-live="polite"></div>
+  <ol class="chain more" aria-live="polite">
     <li style="--c:var(--c-k)"><span class="sw" id="swk"></span><div><span class="lvl">Δημοτική κοινότητα</span><span class="nm empty" id="nk">—</span></div><span class="meta" id="mk"></span></li>
     <li style="--c:var(--c-s)"><span class="sw" id="sws"></span><div><span class="lvl">Συνοικία</span><span class="nm empty" id="ns">—</span></div><span class="meta" id="ms"></span></li>
     <li style="--c:var(--c-g)"><span class="sw" id="swg"></span><div><span class="lvl">Γειτονιά</span><span class="nm empty" id="ng">—</span></div><span class="meta" id="mg"></span></li>
@@ -23,19 +25,19 @@
   <p class="hint" id="hint">Περάστε τον δείκτη πάνω από τον χάρτη. Σε κινητό, πατήστε ένα σημείο.</p>
   <form class="addr" id="faddr" autocomplete="on">
     <label class="find" for="addr">Πού μένετε;</label>
-    <div class="row"><input id="addr" name="address" placeholder="π.χ. Πατησίων 76" autocomplete="street-address"><button id="baddr" type="submit" class="primary">Εύρεση</button></div>
-    <div class="row wrap"><button id="bgeo" type="button" class="ghost">Η τοποθεσία μου</button><button id="bpin" type="button" class="ghost" aria-pressed="false">Σημείωση στον χάρτη</button><button id="bclear" type="button" class="link" hidden>Καθαρισμός</button></div>
+    <div class="row"><input id="addr" name="address" placeholder="π.χ. Πατησίων 76" autocomplete="street-address"><button id="baddr" type="submit" class="primary">Εύρεση</button><button id="bgeo2" type="button" class="icon" aria-label="Η τοποθεσία μου" title="Η τοποθεσία μου"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+    <div class="row wrap more"><button id="bgeo" type="button" class="ghost">Η τοποθεσία μου</button><button id="bpin" type="button" class="ghost" aria-pressed="false">Σημείωση στον χάρτη</button><button id="bclear" type="button" class="link" hidden>Καθαρισμός</button></div>
     <ul id="results" class="results" hidden></ul>
     <p id="msg" class="msg" role="status" hidden></p>
     <p class="fine">Η αναζήτηση γίνεται μέσα στη συσκευή σας. Η διεύθυνση δεν στέλνεται πουθενά.</p>
   </form>
-  <label class="find find-g" for="find">Ή διαλέξτε γειτονιά
+  <label class="find find-g more" for="find">Ή διαλέξτε γειτονιά
     <div class="combo">
       <input id="find" role="combobox" aria-expanded="false" aria-controls="glist" aria-autocomplete="list" placeholder="π.χ. Κουκάκι, Κυψέλη, Γκάζι" autocomplete="off">
       <ul id="glist" role="listbox" aria-label="Γειτονιές" hidden></ul>
     </div>
   </label>
-  <p class="note"><span class="sw dash"></span>Διακεκομμένη γραμμή: χώρος ή μη θεσμική περιοχή, όπως ο Λυκαβηττός.</p>
+  <p class="note more"><span class="sw dash"></span>Διακεκομμένη γραμμή: χώρος ή μη θεσμική περιοχή, όπως ο Λυκαβηττός.</p>
 </section>
 
 <div class="tools">
@@ -44,10 +46,11 @@
 </div>
 
 <footer class="credits">
-  Όρια: <a href="https://opendata.cityofathens.gr/" target="_blank" rel="noopener">Δήμος Αθηναίων</a> ·
+  <span class="c-short">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · <a href="https://opendata.cityofathens.gr/" target="_blank" rel="noopener">Δήμος Αθηναίων</a> · <a href="LICENSE.txt" target="_blank" rel="noopener">Κώδικας</a></span>
+  <span class="c-long">Όρια: <a href="https://opendata.cityofathens.gr/" target="_blank" rel="noopener">Δήμος Αθηναίων</a> ·
   Χάρτης &amp; διευθύνσεις: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
   <a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre</a> ·
-  <a href="LICENSE.txt" target="_blank" rel="noopener">Ανοιχτός κώδικας</a> (EUPL-1.2)
+  <a href="LICENSE.txt" target="_blank" rel="noopener">Ανοιχτός κώδικας</a> (EUPL-1.2)</span>
 </footer>
 
 <script src="vendor/maplibre-gl-4.7.1.js"></script>
@@ -55,6 +58,6 @@
 <script src="vendor/deck.gl-9.0.41.min.js"></script>
 <script src="data/athens-data.js?v=3b4660dc"></script>
 <script src="geocoder.js?v=8e8d37b0"></script>
-<script src="app.js?v=b16fa834"></script>
+<script src="app.js?v=b0a8c3c3"></script>
 </body>
 </html>
