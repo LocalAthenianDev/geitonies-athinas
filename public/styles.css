@@ -141,3 +141,18 @@ label.find{display:grid;gap:6px;font-size:12px;color:var(--muted)}
   .emblem-m a img{width:36px;height:36px}
   .emblem-m .mark{height:26px;width:auto;border-radius:5px}
 }
+
+/* σελίδα «Πηγές δεδομένων» (sources.html) */
+body.page{overflow:auto;background:var(--land)}
+.doc{box-sizing:border-box;max-width:720px;margin:0 auto;padding:32px max(20px,env(safe-area-inset-right,0px)) 64px max(20px,env(safe-area-inset-left,0px));font-size:16px;line-height:1.55}
+.doc a{color:var(--c-k);text-underline-offset:2px}
+.doc a:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:2px}
+.doc .back{margin:0;font-size:14px}
+.doc .back a{color:var(--muted)}
+.doc h1{display:block;font-size:40px;margin:20px 0 6px}
+.doc .lead{margin:0;color:var(--muted)}
+.doc h2{font-family:var(--f-display);font-weight:400;font-size:23px;line-height:1.2;margin:36px 0 12px}
+.doc p{margin:0 0 12px}
+.cites{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.cites li{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 16px}
+.cites a{overflow-wrap:anywhere}
